@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Database
+model User {
+  id         Int       @id @default(autoincrement())
+  name       String
+  email      String    @unique
+  password   String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  earnings   Earning[] // One User has many Earnings
+  categories Category[] // One User has many Categories
+}
+
+model Earning {
+  id         Int       @id @default(autoincrement())
+  total      Float
+  date       DateTime  @default(now())
+  userId     Int       // Foreign key to User
+  user       User      @relation(fields: [userId], references: [id]) // Defining the relationship
+  allocations EarningAllocation[] // One Earning has many EarningAllocations
+}
+
+model EarningAllocation {
+  id         Int       @id @default(autoincrement())
+  amount     Float
+  earningId  Int        // Foreign key to Earning
+  categoryId Int        // Foreign key to Category
+  earning    Earning    @relation(fields: [earningId], references: [id]) // Earning relation
+  category   Category   @relation(fields: [categoryId], references: [id]) // Category relation
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String
+  userId      Int       // Foreign key to User
+  user        User      @relation(fields: [userId], references: [id]) // Defining the relationship
+  expenses    Expense[] // One Category has many Expenses
+  allocations EarningAllocation[] // One Category has many EarningAllocations
+}
+
+model Expense {
+  id          Int       @id @default(autoincrement())
+  amount      Float
+  description String?
+  date        DateTime  @default(now())
+  categoryId  Int       // Foreign key to Category
+  category    Category  @relation(fields: [categoryId], references: [id]) // Defining the relationship
+}
+
