@@ -4,6 +4,18 @@ import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from '@/prisma/lib/prisma';
 import { AuthOptions } from "next-auth";
+
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      id: string,
+      name?: string | null,
+      email?: string | null,
+      image?: string | null,
+    }
+  }
+}
+
 export const authOptions: AuthOptions = {
   // Configuration of the NextAuth options
   adapter: PrismaAdapter(prisma),
@@ -60,7 +72,14 @@ export const authOptions: AuthOptions = {
 
   },
 
-
+  callbacks: {
+    async session({ session, user, token }) {
+      if (session?.user) {
+        session.user.id = user.id as string;
+      }
+      return session;
+    }
+  }
 };
 
 export default NextAuth(authOptions);
