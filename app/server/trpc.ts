@@ -2,7 +2,6 @@ import { initTRPC } from "@trpc/server";
 import { CreateNextContextOptions } from "@trpc/server/adapters/next";
 import { getSession } from "next-auth/react";
 import { prisma } from "@/prisma/lib/prisma";
-import { NextApiRequest } from "next";
 
 
 const createContext = async (opts: CreateNextContextOptions) => {
