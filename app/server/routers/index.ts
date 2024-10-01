@@ -1,9 +1,11 @@
 import { router } from "../trpc";
 import { expenseRouter } from "./expense";
-import { categories } from "./categories";
+import { categoryRouter } from "./categories";
+import { earningRouter } from "./earning";
+
 export const appRouter = router({
   expense: expenseRouter,
-  categories: categories,
-})
+  categories: categoryRouter,
+  earnings: earningRouter,
+});
 
-export type appRouter = typeof appRouter;
