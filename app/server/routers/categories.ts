@@ -1,26 +1,40 @@
 import { z } from "zod";
-import { publicprocedure, router } from "../trpc";
+import { router, publicprocedure } from "../trpc";
 
-export const categoryRouter = router({
-  // 1. Create a category with title, description, and amount spent
+// Input for creating a new category
+const createCategoryInput = z.object({
+  name: z.string().min(1, "Category name is required"),
+});
+
+// Input for expense allocation
+const expenseAllocationInput = z.object({
+  categoryId: z.number(), // Category ID for the expense
+  amount: z.number().min(0, "Amount must be positive"), // Amount for the expense
+  description: z.string().optional(), // Optional description for the expense
+});
+
+// Input for allocating income
+const allocateIncomeInput = z.object({
+  incomeId: z.number(), // The income ID from which we're allocating
+  allocations: z.array(expenseAllocationInput), // Allocations to different categories
+});
+
+const categoryRouter = router({
+  // Create a new category for the user
   createCategory: publicprocedure
-    .input(
-      z.object({
-        title: z.string().min(1, "Title is required."),
-        description: z.string().optional(), // Optional description
-        amount: z.number().min(0, "Amount must be a positive number."), // Amount field
-      })
-    )
+    .input(createCategoryInput)
     .mutation(async ({ input, ctx }) => {
-      const { title, description, amount } = input;
+      const userId = parseInt(ctx.userId as string, 10);
 
-      // Create category for the logged-in user
+      if (isNaN(userId)) {
+        throw new Error("Invalid user ID");
+      }
+
+      // Create a new category for the user
       const category = await ctx.db.prisma.category.create({
         data: {
-          name: title,
-          description: description || null,
-          amount, // Capture the amount spent
-          userId: ctx.userId, // Assuming userId is fetched from session
+          name: input.name,
+          userId: userId,
         },
       });
 
@@ -30,72 +44,94 @@ export const categoryRouter = router({
       };
     }),
 
-  // 2. Get all categories for the user and return the total sum of amounts
-  getCategories: publicprocedure.query(async ({ ctx }) => {
+  // Get all categories with their associated expenses
+  getCategoriesWithExpenses: publicprocedure.query(async ({ ctx }) => {
+    const userId = parseInt(ctx.userId as string, 10);
+
+    if (isNaN(userId)) {
+      throw new Error("Invalid user ID");
+    }
+
     const categories = await ctx.db.prisma.category.findMany({
       where: {
-        userId: ctx.userId, // Fetch categories only for the logged-in user
+        userId: userId, // Fetch categories for the logged-in user
+      },
+      include: {
+        expenses: true, // Include related expenses for each category
       },
     });
 
-    // Calculate the total amount spent
-    const totalAmount = categories.reduce((sum: number, category: any) => sum + category.amount, 0);
-
     return {
       categories,
-      totalAmount, // Return the total sum of amounts
     };
   }),
-
-  // 3. Update a category
-  updateCategory: publicprocedure
-    .input(
-      z.object({
-        categoryId: z.string().min(1, "Category ID is required."),
-        title: z.string().optional(),
-        description: z.string().optional(),
-        amount: z.number().optional(), // Allow updating the amount
-      })
-    )
-    .mutation(async ({ input, ctx }) => {
-      const { categoryId, title, description, amount } = input;
-
-      const updatedCategory = await ctx.db.prisma.category.update({
-        where: {
-          id: categoryId,
-        },
-        data: {
-          name: title || undefined, // Only update if a new title is provided
-          description: description || undefined, // Only update if a new description is provided
-          amount: amount || undefined, // Only update if a new amount is provided
-        },
-      });
-
-      return {
-        message: "Category updated successfully.",
-        updatedCategory,
-      };
-    }),
-
-  // 4. Delete a category
-  deleteCategory: publicprocedure
-    .input(
-      z.object({
-        categoryId: z.string().min(1, "Category ID is required."),
-      })
-    )
-    .mutation(async ({ input, ctx }) => {
-      const { categoryId } = input;
-
-      await ctx.db.prisma.category.delete({
-        where: {
-          id: categoryId,
-        },
-      });
-
-      return {
-        message: "Category deleted successfully.",
-      };
-    }),
 });
+
+const earningRouter = router({
+  // Allocate income into categories as expenses
+  allocateIncome: publicprocedure
+    .input(allocateIncomeInput)
+    .mutation(async ({ input, ctx }) => {
+      const { incomeId, allocations } = input;
+
+      // Check if income exists
+      const income = await ctx.db.prisma.earning.findUnique({
+        where: { id: incomeId },
+      });
+
+      if (!income) {
+        throw new Error("Income not found.");
+      }
+
+      // Iterate through allocations and create expenses for each category
+      const expenses = await Promise.all(
+        allocations.map(async (allocation) => {
+          return ctx.db.prisma.expense.create({
+            data: {
+              amount: allocation.amount,
+              description: allocation.description || null,
+              categoryId: allocation.categoryId, // Link to the category
+              date: new Date(), // Optional: use current date
+            },
+          });
+        })
+      );
+
+      return {
+        message: "Income allocated successfully to categories.",
+        expenses, // Return created expenses for confirmation
+      };
+    }),
+
+  // Get all earnings for the user
+  getEarnings: publicprocedure.query(async ({ ctx }) => {
+    const userId = parseInt(ctx.userId as string, 10);
+
+    if (isNaN(userId)) {
+      throw new Error("Invalid user ID");
+    }
+
+    const earnings = await ctx.db.prisma.earning.findMany({
+      where: {
+        userId: userId, // Fetch earnings for the logged-in user
+      },
+      include: {
+        allocations: true, // Optional: include allocations if needed
+      },
+    });
+
+    return {
+      earnings,
+    };
+  }),
+});
+
+// Combine all routes into one app router
+export const appRouter = router({
+  earnings: earningRouter,
+  categories: categoryRouter,
+});
+
+// Export type definition of API
+export type AppRouter = typeof appRouter;
 
