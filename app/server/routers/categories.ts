@@ -127,11 +127,11 @@ const earningRouter = router({
 });
 
 // Combine all routes into one app router
-export const appRouter = router({
+export const categories = router({
   earnings: earningRouter,
   categories: categoryRouter,
 });
 
 // Export type definition of API
-export type AppRouter = typeof appRouter;
+export type AppRouter = typeof categories;
 
