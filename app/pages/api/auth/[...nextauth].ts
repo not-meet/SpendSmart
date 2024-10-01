@@ -17,7 +17,6 @@ declare module 'next-auth' {
 }
 
 export const authOptions: AuthOptions = {
-  // Configuration of the NextAuth options
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
@@ -47,19 +46,22 @@ export const authOptions: AuthOptions = {
           const newUser = await prisma.user.create({
             data: {
               email: credentials.username,
-              password: credentials.password,  // Note: Consider hashing the password before storing!
+              password: credentials.password,  // Store password in plain text (not recommended)
+              name: credentials.username,  // Provide name or handle it as optional
             },
           });
-          return { id: newUser.id, email: newUser.email };
+
+          // Return new user with id as string
+          return { id: String(newUser.id), email: newUser.email };
         }
 
-        // Check password (consider using a proper hashing method here)
+        // Check password (compare plain text password)
         if (user.password !== credentials.password) {
           throw new Error("Invalid credentials");
         }
 
-        // Successful login
-        return { id: user.id, email: user.email };
+        // Successful login, return user with id as string
+        return { id: String(user.id), email: user.email };
       }
     }),
   ],
@@ -68,16 +70,20 @@ export const authOptions: AuthOptions = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  jwt: {
-
-  },
+  jwt: {},
 
   callbacks: {
     async session({ session, user, token }) {
       if (session?.user) {
-        session.user.id = user.id as string;
+        session.user.id = token.sub || "";  // Ensure `id` is set correctly from JWT
       }
       return session;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.sub = user.id; // Set user ID in JWT token
+      }
+      return token;
     }
   }
 };
