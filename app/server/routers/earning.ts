@@ -38,7 +38,7 @@ export const earningRouter = router({
               amount: allocation.amount,
               description: allocation.description || null,
               categoryId: allocation.categoryId, // Link to the category
-              date: new Date(), // Optional: use current date
+              date: new Date(),
             },
           });
         })
@@ -46,7 +46,7 @@ export const earningRouter = router({
 
       return {
         message: "Income allocated successfully to categories.",
-        expenses, // Return created expenses for confirmation
+        expenses,
       };
     }),
 

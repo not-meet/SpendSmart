@@ -16,7 +16,7 @@ export const expenseRouter = router({
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const { totalSalary, categories } = input;
+      const { categories } = input;
 
       const userId = parseInt(ctx.userId as string, 10);
 
