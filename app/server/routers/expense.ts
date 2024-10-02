@@ -18,23 +18,21 @@ export const expenseRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { totalSalary, categories } = input;
 
-      // Convert userId to a number
       const userId = parseInt(ctx.userId as string, 10);
 
       if (isNaN(userId)) {
         throw new Error("Invalid user ID");
       }
 
-      // Create categories and associate them with the created expense
+      // Create categories asociate them
       for (const category of categories) {
         const newCategory = await ctx.db.prisma.category.create({
           data: {
             name: category.title,
-            userId: userId, // Associate the category with the user
+            userId: userId,
           },
         });
 
-        // Create the expense and associate it with the category
         await ctx.db.prisma.expense.create({
           data: {
             amount: category.amount, // Use the amount for the expense

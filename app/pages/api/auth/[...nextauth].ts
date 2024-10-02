@@ -46,8 +46,8 @@ export const authOptions: AuthOptions = {
           const newUser = await prisma.user.create({
             data: {
               email: credentials.username,
-              password: credentials.password,  // Store password in plain text (not recommended)
-              name: credentials.username,  // Provide name or handle it as optional
+              password: credentials.password,
+              name: credentials.username,
             },
           });
 
@@ -75,13 +75,13 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async session({ session, user, token }) {
       if (session?.user) {
-        session.user.id = token.sub || "";  // Ensure `id` is set correctly from JWT
+        session.user.id = token.sub || "";
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
-        token.sub = user.id; // Set user ID in JWT token
+        token.sub = user.id;
       }
       return token;
     }
