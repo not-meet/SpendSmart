@@ -6,13 +6,6 @@ const createCategoryInput = z.object({
   name: z.string().min(1, "Category name is required"),
 });
 
-// Input for expense allocation
-const expenseAllocationInput = z.object({
-  categoryId: z.number(), // Category ID for the expense
-  amount: z.number().min(0, "Amount must be positive"), // Amount for the expense
-  description: z.string().optional(), // Optional description for the expense
-});
-
 export const categoryRouter = router({
   // Create a new category for the user
   createCategory: publicprocedure
