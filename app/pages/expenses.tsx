@@ -1,11 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
+import { useRouter } from "next/router";
 
 const Expenses = () => {
-  const [allocatedAmount, setAllocatedAmount] = useState<number>(0);
-  const [monthlyExpense, setMonthlyExpense] = useState<number>(0);
-
-  // Calculate the remaining amount to allocate
-  const remainingAmount = monthlyExpense - allocatedAmount;
+  const router = useRouter();
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-stone-200">
@@ -13,7 +10,12 @@ const Expenses = () => {
         {/* Navbar */}
         <div className="col-span-10 flex items-center justify-between p-3 rounded-lg shadow-2xl bg-stone-300">
           <div>
-            <button className="text-black text-lg">Home</button>
+            <button
+              className="text-black text-lg"
+              onClick={() => router.push("/")} // Navigate to home
+            >
+              Home
+            </button>
           </div>
           <div className="text-black text-3xl font-bold">spendSmart</div>
           <div>
@@ -53,7 +55,6 @@ const Expenses = () => {
             <input
               type="number"
               placeholder="Enter amount"
-              onChange={(e) => setAllocatedAmount(Number(e.target.value))}
               className="w-1/3 p-2 border-b border-gray-800 focus:outline-none bg-transparent"
             />
           </div>
@@ -67,17 +68,14 @@ const Expenses = () => {
           <input
             type="number"
             placeholder="Enter monthly expense"
-            onChange={(e) => setMonthlyExpense(Number(e.target.value))}
             className="w-full p-2 border-b border-gray-800 focus:outline-none bg-transparent"
           />
         </div>
 
-        {/* Amount Left to Allocate */}
+        {/* Remaining Money to Allocate */}
         <div className="col-span-4 row-span-2 bg-[#cab6a1] rounded-lg shadow-2xl p-4 flex flex-col justify-center">
-          <h2 className="text-lg text-gray-800 font-bold mb-2">Amount Left to Allocate</h2>
-          <p className="text-xl text-gray-800 font-semibold">
-            {remainingAmount >= 0 ? `$${remainingAmount}` : "Over Allocated"}
-          </p>
+          <h2 className="text-lg font-bold">Remaining Money to Allocate</h2>
+          <p className="text-xl font-bold text-gray-800">Amount Left: $1000</p>
         </div>
 
         {/* Save and Exit Button */}
