@@ -22,7 +22,7 @@ const Expenses = () => {
         <div className="col-span-7 row-span-7 bg-[#a38771] rounded-lg p-6 flex shadow-2xl flex-col justify-between">
           {/* Form Inputs */}
           <div>
-            <label className="block text-xl text-gray-800 font-bold mb-2">
+            <label className="block text-lg text-gray-800 font-bold mb-2">
               Title
             </label>
             <input
@@ -30,7 +30,7 @@ const Expenses = () => {
               placeholder="Enter title"
               className="w-full p-2 mb-4 border-b border-gray-800 focus:outline-none bg-transparent"
             />
-            <label className="block text-xl text-gray-800 font-bold mb-2">
+            <label className="block text-lg text-gray-800 font-bold mb-2">
               Description
             </label>
             <textarea
@@ -41,7 +41,7 @@ const Expenses = () => {
 
           {/* Amount Input (Bottom Left) */}
           <div className="flex flex-col">
-            <label className="text-xl text-gray-800 font-bold mb-2">
+            <label className="text-lg text-gray-800 font-bold mb-2">
               Allocate Amount
             </label>
             <input
@@ -54,7 +54,7 @@ const Expenses = () => {
 
         {/* Total Monthly Expense Input */}
         <div className="col-span-3 row-span-3 bg-[#cab6a1] rounded-lg shadow-2xl p-4 flex flex-col justify-center">
-          <label className="block text-xl text-gray-800 font-bold mb-2">
+          <label className="block text-lg text-gray-800 font-bold mb-2">
             Total Monthly Expense
           </label>
           <input
@@ -63,9 +63,15 @@ const Expenses = () => {
             className="w-full p-2 border-b border-gray-800 focus:outline-none bg-transparent"
           />
         </div>
+        <div className="col-span-4 row-span-2 bg-[#cab6a1] rounded-lg shadow-2xl">...</div>
 
-        <div className="col-span-4 row-span-2 bg-[#cab6a1] rounded-lg shadow-2xl"></div>
-        <div className="col-span-3 row-span-2 bg-[#cab6a1] rounded-lg shadow-2xl"></div>
+        {/* Save and Exit Button */}
+        <div className="col-span-3 row-span-2 flex justify-start items-start">
+          <button className="bg-[#a25f4b] text-white font-bold py-6 px-6 rounded-lg transform transition duration-300 hover:scale-105 hover:bg-[#8f4e3b] shadow-lg">
+            Save and Exit
+          </button>
+        </div>
+
       </div>
     </div>
   );
