@@ -1,6 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 
 const Expenses = () => {
+  const [allocatedAmount, setAllocatedAmount] = useState<number>(0);
+  const [monthlyExpense, setMonthlyExpense] = useState<number>(0);
+
+  // Calculate the remaining amount to allocate
+  const remainingAmount = monthlyExpense - allocatedAmount;
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-stone-200">
       <div className="grid min-h-screen w-full grid-cols-10 grid-rows-10 gap-4 p-5 rounded-lg">
@@ -47,6 +53,7 @@ const Expenses = () => {
             <input
               type="number"
               placeholder="Enter amount"
+              onChange={(e) => setAllocatedAmount(Number(e.target.value))}
               className="w-1/3 p-2 border-b border-gray-800 focus:outline-none bg-transparent"
             />
           </div>
@@ -60,10 +67,18 @@ const Expenses = () => {
           <input
             type="number"
             placeholder="Enter monthly expense"
+            onChange={(e) => setMonthlyExpense(Number(e.target.value))}
             className="w-full p-2 border-b border-gray-800 focus:outline-none bg-transparent"
           />
         </div>
-        <div className="col-span-4 row-span-2 bg-[#cab6a1] rounded-lg shadow-2xl">...</div>
+
+        {/* Amount Left to Allocate */}
+        <div className="col-span-4 row-span-2 bg-[#cab6a1] rounded-lg shadow-2xl p-4 flex flex-col justify-center">
+          <h2 className="text-lg text-gray-800 font-bold mb-2">Amount Left to Allocate</h2>
+          <p className="text-xl text-gray-800 font-semibold">
+            {remainingAmount >= 0 ? `$${remainingAmount}` : "Over Allocated"}
+          </p>
+        </div>
 
         {/* Save and Exit Button */}
         <div className="col-span-3 row-span-2 flex justify-start items-start">
@@ -71,7 +86,6 @@ const Expenses = () => {
             Save and Exit
           </button>
         </div>
-
       </div>
     </div>
   );
